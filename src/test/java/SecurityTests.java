@@ -26,20 +26,19 @@ public class SecurityTests {
     }
 
     @Test
-    void rateLimiterVerification(){
-        Cryptography cryptography=new Cryptography();
+    void rateLimiterVerification() {
+        Cryptography cryptography = new Cryptography();
         String username = "user1@Payconiq.com";
-
+        String browserFingerPrintUUID = "cad5fc067493ca7b3f85d60c65745b3bf5617ffdd38f7ad3eec163d55edddd06";
         String password = "password";
-        cryptography.userAuth(username, password);
-        assertFalse(Security.rateController.asMap().containsKey(username));
+        cryptography.userAuth(username, password, browserFingerPrintUUID);
+        assertFalse(Security.rateController.asMap().containsKey(browserFingerPrintUUID));
 
-        password="badPassword!";
-        cryptography.userAuth(username, password);
-        cryptography.userAuth(username, password);
-        cryptography.userAuth(username, password);
-        assertTrue(Security.rateController.asMap().containsKey(username));
-
+        password = "badPassword!"; // try to bruteforce
+        cryptography.userAuth(username, password, browserFingerPrintUUID);
+        cryptography.userAuth(username, password, browserFingerPrintUUID);
+        cryptography.userAuth(username, password, browserFingerPrintUUID);
+        assertTrue(Security.rateController.asMap().containsKey(browserFingerPrintUUID));
 
 
     }

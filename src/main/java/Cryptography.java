@@ -9,7 +9,9 @@ public class Cryptography {
     private final int PASSWORD_MAX_LEN = 64;
     Argon2 argon2 = Argon2Factory.create();
 
-    public boolean userAuth(String username, String password) {
+    // browserFingerPrintUUId extracted from request header
+    // solution: https://github.com/khaleghsalehi/ironfox
+    public boolean userAuth(String username, String password, String browserFingerPrintUUId) {
         // username and password validation
         if (!Security.checkUserName(username) || password.length() > PASSWORD_MAX_LEN) {
             System.out.println("maximum password length, return false");
@@ -17,8 +19,8 @@ public class Cryptography {
         }
 
         // rate limiter by guava cache
-        if (Security.rateController.asMap().containsKey(username)) {
-            System.out.println(username + " already tried for authentication, wait for second");
+        if (Security.rateController.asMap().containsKey(browserFingerPrintUUId)) {
+            System.out.println(username + "rate limiter: " + browserFingerPrintUUId + "  already tried for authentication, wait for second");
             return false;
         }
 
@@ -31,7 +33,7 @@ public class Cryptography {
                     // todo go to next step (2FactorAuthentication, e.g OTP by sms)
                 } else {
                     System.out.println("Password incorrect!");
-                    Security.rateController.asMap().put(username,
+                    Security.rateController.asMap().put(browserFingerPrintUUId,
                             String.valueOf(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)));
                     return false;
                 }
